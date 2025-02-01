@@ -8,7 +8,13 @@ import { signIn } from './auth';
 
 const authFormSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string()
+    .min(8, "Heslo musí mít alespoň 8 znaků")
+    .regex(/[A-Z]/, "Heslo musí obsahovat alespoň jedno velké písmeno")
+    .regex(/[a-z]/, "Heslo musí obsahovat alespoň jedno malé písmeno")
+    .regex(/[0-9]/, "Heslo musí obsahovat alespoň jedno číslo")
+    .regex(/[^A-Za-z0-9]/, "Heslo musí obsahovat alespoň jeden speciální znak")
+    .max(72, "Heslo nesmí být delší než 72 znaků"),
 });
 
 export interface LoginActionState {
@@ -33,6 +39,7 @@ export const login = async (
 
     return { status: 'success' };
   } catch (error) {
+    console.error('Error during login:', error);
     if (error instanceof z.ZodError) {
       return { status: 'invalid_data' };
     }
